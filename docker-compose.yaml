@@ -1,0 +1,36 @@
+services:
+  rag-trulens:
+    container_name: rag-trulens
+    build:
+      context: ./trulens
+      dockerfile: Dockerfile
+    ports:
+      - 8501:8501
+    volumes:
+      - ./trulens:/rag-trulens
+      - rag_results:/public/tmp/trulens-rag-results
+    command: python app.py
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TRULENS_RESULT_FILE: ${TRULENS_RESULT_FILE}
+      TRULENS_APP_ID: ${TRULENS_APP_ID}
+      TRULENS_FILE_POLLING_INTERVAL: ${TRULENS_FILE_POLLING_INTERVAL}
+  rag-app:
+    container_name: rag-app
+    depends_on:
+      - rag-trulens
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TRULENS_RESULT_FILE: ${TRULENS_RESULT_FILE}
+    ports:
+      - 3333:3333
+    entrypoint: sh -c "yarn install && yarn build && yarn dev"
+    working_dir: /rag-app
+    volumes:
+      - .:/rag-app
+      - rag_results:/public/tmp/trulens-rag-results
+volumes:
+  rag_results: {}

@@ -1,0 +1,10 @@
+trulens_eval
+chromadb
+openai
+flask
+flask_cors
+langchain
+langchainhub
+bs4
+tiktoken
+ipytree
